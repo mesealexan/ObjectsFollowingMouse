@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="vendor/three.min.js"></script>
+    <script src="vendor/OrbitControls.js"></script>
+    <script src="vendor/Tween.js"></script>
+    <script src="js/buildScene.js"></script>
+  </head>
+  <body>
+  <div id="iFrame01">
+    <p style="position:fixed;color:black;">Object:Pillow, Texture:160x160.png, Background: #ffffff, Back Color: #ff00ff, Rotation Factor: 1</p>
+  </div>
+    <script>
+//buildScene(objectPath, objectImagePath, elementID, backgroundColor, backColor, rotationFactor)
+buildScene('art/pillow.js','art/160x160.png', 'iFrame01', 0xffffff, 0xff00ff, 1)
+    </script>
+    </div>
+  </body>
+</html>
+
+
