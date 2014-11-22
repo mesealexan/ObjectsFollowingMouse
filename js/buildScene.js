@@ -5,7 +5,7 @@ function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backC
     var loadedMesh;
     var SCREEN_WIDTH = window.innerWidth; 
     var SCREEN_HEIGHT = window.innerHeight; 
-    var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 1, FAR = 2000;
+    var VIEW_ANGLE = 15, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 1, FAR = 5000;
     var projector = new THREE.Projector();
     var mouseVector = new THREE.Vector3();
     var intersection = undefined;
@@ -13,7 +13,7 @@ function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backC
     var isUpdating = false;
     var tween;
     //var exageration = interpolate(1,bendingFactor,10,-1000,-10);
-    var exageration = -1/bendingFactor*2000;
+    var exageration = 1/bendingFactor*2000;
 
     init(); 
 
@@ -21,7 +21,7 @@ function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backC
         {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR); 
-            camera.position.set(0,100,0); 
+            camera.position.set(0,500,0); 
             camera.lookAt(scene.position);   
             scene.add(camera); 
             // RENDERER
@@ -43,7 +43,7 @@ function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backC
             jsonLoader.load(objectPath, callBackFunction)
 
 
-            var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshNormalMaterial());
+            var plane = new THREE.Mesh(new THREE.PlaneGeometry(10000, 10000), new THREE.MeshNormalMaterial());
             plane.geometry.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
             plane.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0,exageration,0) );
 
@@ -89,6 +89,7 @@ function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backC
             material.materials[0].color = new THREE.Color( backColor );
             material.materials[1].map = map;
             geometry.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
+            geometry.applyMatrix( new THREE.Matrix4().makeRotationY(Math.PI) );
             geometry.computeVertexNormals();
             loadedMesh = new THREE.Mesh( geometry, material); 
             loadedMesh.lookAt(new THREE.Vector3(0,exageration,0))
@@ -120,7 +121,7 @@ function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backC
     {
         isUpdating = false
         tween = new TWEEN.Tween(loadedMesh.rotation)
-        .to({x:Math.PI/2, y:0, z:Math.PI/2 }, 1000)
+        .to({x:-Math.PI/2, y:0, z:Math.PI/2 }, 1000)
         .start();
     }
     function onDocumentMouseEnter( event ){
