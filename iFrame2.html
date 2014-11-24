@@ -10,13 +10,13 @@
     <script src="js/buildScene.js"></script>
   </head>
   <body>
-  <div id="iFrame02">
-  <p style="position:fixed;color:black;">Object:Pillow, Texture:160x160.png, Background: #00ffff, Back Color: #ffff00, Rotation Factor: 20</p>
+  <div id="iFrame02" class="iFrames">
+  <p style="position:fixed;color:black;pointer-events:none;">Object:Pillow, Texture:160x160.png, Background: #00ffff, Back Color: #ffff00, Rotation Factor: 20, Time to Return: 500</p>
   </div>
     <script>
     
 //buildScene(objectPath, objectImagePath, elementID, backgroundColor)
-buildScene('art/pillow.js','art/160x160.png', 'iFrame02', 0x00ffff, 0xffff00, 20)
+buildScene('art/pillow.js','art/160x160.png', 'iFrame02', 0x00ffff, 0xffff00, 20, 500)
     </script>
     </div>
   </body>

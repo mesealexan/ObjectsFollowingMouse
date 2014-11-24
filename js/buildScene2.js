@@ -1,6 +1,6 @@
 
   var loadedMesh;
-function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backColor, bendingFactor, timeToReturn){
+function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backColor, bendingFactor){
     var container, scene, camera, renderer, stats;
     var jsonLoader = new THREE.JSONLoader(); 
   
@@ -13,16 +13,11 @@ function buildScene(objectPath,objectImagePath,elementID, backgroundColor, backC
     var rayPickCollector = new THREE.Object3D();
     var isUpdating = false;
     var tween;
-    var timeToTween = 1/timeToReturn;
-    var mousePosition = new THREE.Vector3();
-    
-
-var goingIn = setInterval(function(){},0);
-var goingOut = setInterval(function(){},0);
+    var timeToTween = 1000;
+    var currentVectorPosition = new THREE.Vector3;
     
     //var exageration = interpolate(1,bendingFactor,10,-1000,-10);
     var exageration = 1/bendingFactor*2000;
-    var lookAtPosition = new THREE.Vector3(0,exageration,0);
 var newPosition = new THREE.Vector3(0,exageration,0)
     init(); 
 
@@ -75,7 +70,7 @@ var newPosition = new THREE.Vector3(0,exageration,0)
                 scene.add( light3 );
             var ambientLight = new THREE.AmbientLight(0xffffff); 
             scene.add(ambientLight);
-
+            //var tween = new TWEEN.Tween(position).to(target, 2000);
             animate();
         }
 
@@ -84,10 +79,13 @@ var newPosition = new THREE.Vector3(0,exageration,0)
             requestAnimationFrame( animate ); 
             renderer.render( scene, camera );
 
-            if(loadedMesh)
+            currentVectorPosition.applyQuaternion(loadedMesh.quaternion);
+            console.log(currentVectorPosition);
+            //currentVectorPosition = loadedMesh.lookAt;
+            if(intersection && loadedMesh && isUpdating)
             {
-                loadedMesh.lookAt(lookAtPosition);
-                loadedMesh.rotation.z = 0; 
+                loadedMesh.lookAt(new THREE.Vector3(intersection.point.x,intersection.point.y,intersection.point.z))
+                loadedMesh.rotation.z =0; 
             }  
             TWEEN.update();  
         }
@@ -103,56 +101,105 @@ var newPosition = new THREE.Vector3(0,exageration,0)
             geometry.applyMatrix( new THREE.Matrix4().makeRotationY(Math.PI) );
             geometry.computeVertexNormals();
             loadedMesh = new THREE.Mesh( geometry, material); 
-            //loadedMesh.lookAt(lookAtPosition)
-            //loadedMesh.rotation.z =0;
+            loadedMesh.lookAt(new THREE.Vector3(0,exageration,0))
+           // loadedMesh.rotation.z = Math.PI/2;
             scene.add( loadedMesh ); 
         }  
 
 
 
 
-function onDocumentMouseMove( event ) 
+    function onDocumentMouseMove( event ) 
     {   
+        if(tween)
+            tween.stop();
         mouseVector.x = 2 * (event.clientX / SCREEN_WIDTH ) - 1  ;
         mouseVector.y = 1 - 2 * ( event.clientY / SCREEN_HEIGHT );
         var raycaster = projector.pickingRay( mouseVector.clone(), camera );
         var intersects = raycaster.intersectObjects( rayPickCollector.children );
-            intersection = intersects[ 0 ];
-            mousePosition = intersection.point;
+            intersection = intersects[ 0 ],
+            obj = intersection.object;
     }
 
-function onDocumentMouseOut( event ) 
+    function onDocumentMouseOut( event ) 
     {
-    var counter1 = 1;
-    clearInterval(goingOut);
-    clearInterval(goingIn);
-    goingOut = setInterval(function(){
-    if(counter1>0){
-        counter1 = counter1 - timeToTween
-        lookAtPosition.x = lookAtPosition.x*counter1 + 0;
-        lookAtPosition.y = lookAtPosition.y*counter1 + (1-counter1) * exageration;
-        lookAtPosition.z = lookAtPosition.z*counter1 + 0;
-    }
-},10);
+        clearInterval(timeOut);
+        clearInterval(timeIn);
+        //isUpdating = false
+        /*tween = new TWEEN.Tween(loadedMesh.rotation)
+        .to({x:-Math.PI/2, y:0, z:Math.PI/2 }, timeToTween)
+        .start();*/
         
     }
 
-function onDocumentMouseEnter( event ){
-    var counter = 1;
-    clearInterval(goingOut);
-    clearInterval(goingIn);
-    goingIn = setInterval(function(){
-    if(counter>0){
-        counter = counter - timeToTween;
-        lookAtPosition.x =  lookAtPosition.x*counter + (1-counter) * intersection.point.x;
-        lookAtPosition.y = lookAtPosition.y*counter + (1-counter) * intersection.point.y;
-        lookAtPosition.z = lookAtPosition.z*counter + (1-counter) * intersection.point.z;
-    }
-},10);
+    var timeOut = setTimeout(function(){},0);
+    var timeIn = setInterval(function(){},0)
 
- 
+
+    function onDocumentMouseEnter( event ){
+        clearInterval(timeOut);
+        clearInterval(timeIn);
+        if(tween)
+            tween.stop();
+        var counter = 1;
+        
+        timeIn = setInterval(function(){
+            if(counter>0){
+            counter = counter - 0.01;
+            isUpdating = false
+/*  
+            mouseVector.x = 2 * (event.clientX / SCREEN_WIDTH ) - 1  ;
+            mouseVector.y = 1 - 2 * ( event.clientY / SCREEN_HEIGHT );
+            var raycaster = projector.pickingRay( mouseVector.clone(), camera );
+            var intersects = raycaster.intersectObjects( rayPickCollector.children );
+            var obj = intersects[ 0 ].object;
+*/
+            newPosition.x =  currentVectorPosition.x*counter + (1-counter) * intersection.point.x;
+            newPosition.y = currentVectorPosition.y*counter + (1-counter) * intersection.point.y;
+            newPosition.z = currentVectorPosition.z*counter + (1-counter) * intersection.point.z;
+            loadedMesh.rotation.z = 0;
+
+             loadedMesh.lookAt(newPosition)
+             //console.log(newPosition)
+            }
+            else{
+                isUpdating = true;
+                clearInterval(timeOut);
+        clearInterval(timeIn);
+            }
+        },timeToTween*0.01)
+/*
+        timeOut = setTimeout(function(){
+            isUpdating = true;
+        },timeToTween)*/
+
+        /*
+        mouseVector.x = 2 * (event.clientX / SCREEN_WIDTH ) - 1  ;
+        mouseVector.y = 1 - 2 * ( event.clientY / SCREEN_HEIGHT );
+        var raycaster = projector.pickingRay( mouseVector.clone(), camera );
+        var intersects = raycaster.intersectObjects( rayPickCollector.children );
+        for( var i = 0; i < intersects.length; i++ ) 
+        {
+            intersection = intersects[ i ]
+        }
+        var timer = 0;
+        var intrval = setInterval(function(){
+            timer = timer + 0.01;
+            if(timer<=1){
+                loadedMesh.lookAt(new THREE.Vector3(
+                     mouseVector.x * timer + intersection.x * (1-timer),
+                     mouseVector.y * timer + intersection.y * (1-timer),
+                     mouseVector.z * timer + intersection.z * (1-timer)
+                    ))
+            }
+            else{
+                isUpdating = true;
+            }                
+        },10)
+        //setTimeout(function(){isUpdating = true;},1000)
+*/
     }
-function interpolate(x1,x2,x3,y1,y3){
+    function interpolate(x1,x2,x3,y1,y3){
         var y2 = (((x2 - x1)*(y3 - y1))/(x3 - x1)) + y1;
         return(y2);
     }
